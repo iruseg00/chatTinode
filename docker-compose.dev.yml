@@ -1,0 +1,48 @@
+version: "3.7"
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    networks: 
+      - tinode-net
+    container_name: mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/my.cnf
+
+  adminer:
+    image: adminer
+    restart: always
+    networks: 
+      - tinode-net
+    container_name: sql_adminer
+    ports:
+      - 40404:8080
+    depends_on:
+      - db
+
+  tinode:
+    image: tinode/tinode-mysql:latest
+    restart: always
+    networks: 
+      - tinode-net
+    container_name: tinode-srv
+    # env_file: tinode.env
+    restart: always
+    # volumes:
+    #   - ./tinodeVol:/opt/tinode/
+    ports:
+      - 6060:6060
+    depends_on:
+      - db    
+
+volumes:
+  dbdata:
+    driver: local      
+
+networks:
+  tinode-net:
+    driver: bridge      
